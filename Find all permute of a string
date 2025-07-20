@@ -1,0 +1,15 @@
+def permute_string(s):
+    def backtrack(chars, left, right, result):
+        if left == right:
+            result.append(''.join(chars))
+        else:
+            for i in range(left, right + 1):
+                chars[left], chars[i] = chars[i], chars[left]  # swap
+                backtrack(chars, left + 1, right, result)
+                chars[left], chars[i] = chars[i], chars[left]  # backtrack
+
+    result = []
+    backtrack(list(s), 0, len(s) - 1, result)
+    return result
+s = "abc"
+print(permute_string(s))
