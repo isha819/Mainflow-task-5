@@ -1,4 +1,6 @@
 import random
+
+# --- Initial Setup ---
 stocks = {
     'AAPL': 100.0,
     'GOOG': 150.0,
@@ -6,104 +8,118 @@ stocks = {
     'AMZN': 120.0
 }
 
-portfolio = {}
-balance = 1000.0
+portfolio = {}  # Stores owned stock quantities
+balance = 1000.0  # Starting cash
 transaction_history = []
 
 # --- Helper Functions ---
 
 def show_stocks():
-    print("\nCurrent Stock Prices:")
-    for stock, price in stocks.items():
-        print(f"{stock}: ₹{price:.2f}")
+    print("\n📈 Current Stock Prices:")
+    for symbol, price in stocks.items():
+        print(f"{symbol}: ₹{price:.2f}")
 
 def update_prices():
-    for stock in stocks:
-        change_percent = random.uniform(-5, 5)  # +/-5% fluctuation
-        stocks[stock] *= (1 + change_percent / 100)
-        stocks[stock] = round(stocks[stock], 2)
+    for symbol in stocks:
+        change_percent = random.uniform(-5, 5)  # Random fluctuation -5% to +5%
+        new_price = stocks[symbol] * (1 + change_percent / 100)
+        stocks[symbol] = round(new_price, 2)
+    print("✅ Stock prices updated.\n")
 
 def buy_stock():
     global balance
     symbol = input("Enter stock symbol to buy: ").upper()
     if symbol not in stocks:
-        print("Stock not found.")
+        print("❌ Stock symbol not found.")
         return
 
     try:
-        quantity = int(input("Enter quantity to buy: "))
+        quantity = int(input(f"Enter quantity to buy of {symbol}: "))
+        if quantity <= 0:
+            print("❌ Quantity must be positive.")
+            return
     except ValueError:
-        print("Invalid quantity.")
+        print("❌ Invalid quantity.")
         return
 
-    total_cost = quantity * stocks[symbol]
-    if total_cost > balance:
-        print(f"Insufficient balance. You need ₹{total_cost - balance:.2f} more.")
+    cost = stocks[symbol] * quantity
+    if cost > balance:
+        print(f"❌ Not enough balance. You need ₹{cost - balance:.2f} more.")
         return
 
-    balance -= total_cost
+    balance -= cost
     portfolio[symbol] = portfolio.get(symbol, 0) + quantity
-    transaction_history.append(f"Bought {quantity} of {symbol} at ₹{stocks[symbol]:.2f}")
-    print(f"Bought {quantity} shares of {symbol}.")
+    transaction_history.append(f"Bought {quantity}x {symbol} @ ₹{stocks[symbol]:.2f}")
+    print(f"✅ Bought {quantity} shares of {symbol} for ₹{cost:.2f}")
 
 def sell_stock():
     global balance
     symbol = input("Enter stock symbol to sell: ").upper()
     if symbol not in portfolio or portfolio[symbol] == 0:
-        print("You don’t own this stock.")
+        print("❌ You do not own this stock.")
         return
 
     try:
-        quantity = int(input("Enter quantity to sell: "))
+        quantity = int(input(f"Enter quantity to sell of {symbol}: "))
+        if quantity <= 0:
+            print("❌ Quantity must be positive.")
+            return
     except ValueError:
-        print("Invalid quantity.")
+        print("❌ Invalid quantity.")
         return
 
     if quantity > portfolio[symbol]:
-        print(f"You only have {portfolio[symbol]} shares.")
+        print(f"❌ You only own {portfolio[symbol]} shares.")
         return
 
-    total_gain = quantity * stocks[symbol]
-    balance += total_gain
+    earnings = stocks[symbol] * quantity
+    balance += earnings
     portfolio[symbol] -= quantity
-    transaction_history.append(f"Sold {quantity} of {symbol} at ₹{stocks[symbol]:.2f}")
-    print(f"Sold {quantity} shares of {symbol}.")
+    transaction_history.append(f"Sold {quantity}x {symbol} @ ₹{stocks[symbol]:.2f}")
+    print(f"✅ Sold {quantity} shares of {symbol} for ₹{earnings:.2f}")
 
 def show_portfolio():
-    print("\n--- Your Portfolio ---")
+    print("\n💼 Your Portfolio:")
     print(f"Cash Balance: ₹{balance:.2f}")
+    has_stocks = False
     for symbol, qty in portfolio.items():
         if qty > 0:
             print(f"{symbol}: {qty} shares (₹{stocks[symbol]:.2f} each)")
-    print()
+            has_stocks = True
+    if not has_stocks:
+        print("You do not own any stocks yet.")
 
 def show_history():
-    print("\n--- Transaction History ---")
+    print("\n🧾 Transaction History:")
     if not transaction_history:
-        print("No transactions yet.")
+        print("No transactions made yet.")
     else:
         for entry in transaction_history:
-            print(entry)
+            print("-", entry)
+
+# --- Main Menu Loop ---
 
 def main():
-    print("Welcome to the Virtual Stock Market Simulator!")
+    print("📊 Welcome to the Virtual Stock Market Simulator 📊")
     while True:
-        print("\nOptions:")
-        print("1. Show stock prices")
-        print("2. Buy stocks")
-        print("3. Sell stocks")
-        print("4. View portfolio")
-        print("5. View transaction history")
-        print("6. Simulate price changes")
+        print("\n--- MENU ---")
+        print("1. Show Stock Prices")
+        print("2. Buy Stocks")
+        print("3. Sell Stocks")
+        print("4. View Portfolio")
+        print("5. View Transaction History")
+        print("6. Simulate Price Change")
         print("7. Exit")
 
-        choice = input("Choose an option (1-7): ")
+        choice = input("Enter your choice (1-7): ")
 
         if choice == '1':
             show_stocks()
         elif choice == '2':
+            show_stocks()
             buy_stock()
         elif choice == '3':
+            show_portfolio()
             sell_stock()
         elif choice == '4':
             show_portfolio()
@@ -111,11 +127,11 @@ def main():
             show_history()
         elif choice == '6':
             update_prices()
-            print("Prices updated with random fluctuations.")
         elif choice == '7':
-            print("Thank you for playing the Virtual Stock Market!")
+            print("👋 Exiting simulator. Thanks for playing!")
             break
         else:
-            print("Invalid choice. Try again.")
+            print("❌ Invalid choice. Please enter 1 to 7.")
 
+# Run the simulator
 main()
